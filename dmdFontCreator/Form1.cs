@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Collections;
+using System.Drawing.Imaging;
+using System.IO;
 
 namespace dmdFontCreator
 {
@@ -70,7 +72,7 @@ namespace dmdFontCreator
                 if (row * 20 + 120 > 430)
                 {
                     this.Height = row * 20 + 120;
-                    panel1.Height = row * 20 + 80;
+                    panel1.Height = row * 20;
                 }
                 else
                 {
@@ -80,7 +82,7 @@ namespace dmdFontCreator
                 if (column * 20 + 240 > 580)
                 {
                     this.Width = column * 20 + 240;
-                    panel1.Width = column * 20 + 20;
+                    panel1.Width = column * 20;
                 }
                 else
                 {
@@ -112,7 +114,6 @@ namespace dmdFontCreator
                     imgArray[i, j].MouseUp += new MouseEventHandler(MouseUP);
                     imgArray[i, j].MouseMove += new MouseEventHandler(MouseMve);
                     imgArray[i, j].BackColor = Color.Gray;
-                    
                     imgArray[i, j].Name = (id).ToString();
                     id++;
                     imgArray[i, j].Height = 20;
@@ -152,11 +153,11 @@ namespace dmdFontCreator
             isLeft = 2;
             //label5.Text = isLeft.ToString();
         }
-
+        int mouseX=-1, mouseY=-1;
         private void MouseMve(object sender, MouseEventArgs e)
         {
-            int mouseX = panel1.Location.X;
-            int mouseY = panel1.Location.Y;
+            mouseX = panel1.Location.X;
+            mouseY = panel1.Location.Y;
             Point cursorPoint = new Point(mouseX, mouseY);
             Point point = panel1.PointToClient(Cursor.Position);
             //label5.Text = point.ToString();
@@ -195,20 +196,28 @@ namespace dmdFontCreator
         int clickError = 0, moveError = 0;
         private void ClickImage(Object sender, System.EventArgs e)
         {
-            try
+            Point cursorPoint = new Point(mouseX, mouseY);
+            Point point = panel1.PointToClient(Cursor.Position);
+            Control crp = panel1.GetChildAtPoint(point);
+            int sutun = -1, satır=-1;
+            if (crp != null)
+            {
+                int.TryParse(crp.Name, out picNumber);
+                sutun = (int)(double)picNumber % column;
+                satır = (int)(double)picNumber / column;
+            }
+                try
             {
                 if (isLeft == 1)
                 {
                     ((System.Windows.Forms.PictureBox)sender).BackColor = Color.Red;
-                    int.TryParse(((System.Windows.Forms.PictureBox)sender).Name, out int id);
-                    temp = (double)id % row;
-                    column = (int)temp;
-                    row = id / row;
-
+                    matrix[satır, sutun] = 1;
                 }
                 if (isLeft == 0)
                 {
+                   
                     ((System.Windows.Forms.PictureBox)sender).BackColor = Color.Gray;
+                    matrix[satır, sutun] = 0;
                 }
             }
             catch (Exception)
@@ -256,7 +265,7 @@ namespace dmdFontCreator
                     type = 8;
 
 
-                richTextBox1.Text = "const uint_" + type + " " + textBox3.Text + "[] =" + Environment.NewLine + "{" + Environment.NewLine;
+                richTextBox1.Text = "const uint" + type + "_t" + " " + textBox3.Text + "[] =" + Environment.NewLine + "{" + Environment.NewLine;
 
                 if (comboBox1.SelectedIndex == 0)
                 {
@@ -536,14 +545,42 @@ namespace dmdFontCreator
         {
             SaveMyFile();
         }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            if (textBox4.Text != "")
+            {
+                int width = panel1.Size.Width;
+                int height = panel1.Size.Height;
+
+                Bitmap bm = new Bitmap(width, height);
+                panel1.DrawToBitmap(bm, new Rectangle(0, 0, width, height));
+                if (Directory.Exists(Application.StartupPath + "/Fonts"))
+                {
+                    bm.Save(Application.StartupPath + "/Fonts/" + textBox4.Text + ".bmp", ImageFormat.Bmp);
+
+                }
+                else
+                {
+                    Directory.CreateDirectory(Application.StartupPath + "/Fonts");
+                    bm.Save(Application.StartupPath + "/Fonts/" + textBox4.Text + ".bmp", ImageFormat.Bmp);
+                }
+
+            }
+            else
+            {
+                MessageBox.Show("Comment can not be null !");
+            }
+        }
+
         public void SaveMyFile()
         {
             // Create a SaveFileDialog to request a path and file name to save to.
             SaveFileDialog saveFile1 = new SaveFileDialog();
 
             // Initialize the SaveFileDialog to specify the RTF extension for the file.
-            saveFile1.DefaultExt = "*.txt";
-            saveFile1.Filter = "Text file (.txt)|*.txt|C file|*.c";
+            saveFile1.DefaultExt = "*.c";
+            saveFile1.Filter = "Text file |*.c";
 
             // Determine if the user selected a file name from the saveFileDialog.
             if (saveFile1.ShowDialog() == System.Windows.Forms.DialogResult.OK &&
