@@ -229,18 +229,7 @@ namespace dmdFontCreator
         
         private void button1_Click(object sender, EventArgs e)
         {
-            int.TryParse(textBox2.Text, out row);
-            int.TryParse(textBox1.Text, out column);
             richTextBox1.Text = "";
-            for (int i = 0; i < row; i++)
-            {
-
-                for (int j = 0; j < column; j++)
-                {
-                    imgArray[i, j].BackColor = Color.Gray;
-                    matrix[i, j] = 0;
-                }
-            }
         }
 
         int type = 0,typeRef;
@@ -570,6 +559,21 @@ namespace dmdFontCreator
             else
             {
                 MessageBox.Show("Comment can not be null !");
+            }
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            int.TryParse(textBox2.Text, out row);
+            int.TryParse(textBox1.Text, out column);
+            for (int i = 0; i < row; i++)
+            {
+
+                for (int j = 0; j < column; j++)
+                {
+                    imgArray[i, j].BackColor = Color.Gray;
+                    matrix[i, j] = 0;
+                }
             }
         }
 
