@@ -1,4 +1,4 @@
-# DmdFontCreator
+# Dmd Font Creator
 Creat your own custom font for dmd
 
 This app is used to create custom font for DMD.
